@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title></title>
+</head>
+<body>
+	<style>
+		table {
+			margin: 10px;
+			border: solid;
+			border-block-color: black;
+			border-width: 1px;
+		}
+	</style>
+	<!--<form method="post" action="users">-->
+	<div>
+		Имя: <input id="name" name="name" />
+		Фамилия: <input id="s_name" name="name" />
+		<button id="submit">Добавить чела</button>
+	</div>
+	<div>
+		<table id="info" border="1">
+			<th>ID</th>
+			<th>Имя</th>
+			<th>Фамилия</th>
+		</table>
+	</div>
+
+	<!--</form>-->
+	<script>
+		let i = -1;
+		let bt_del = "<button id=i onclick='del()'>Удалить</button>"
+		document.getElementById("submit").addEventListener("click", add)
+		async function add() {
+			i++;
+			responce = await fetch("/api/add", {
+				method: "POST",
+				headers: { "Accept": "application/json", "Content-Type": "application/json" },
+				body: JSON.stringify(
+					{
+						"name": document.getElementById("name").value,
+						"s_name": document.getElementById("s_name").value
+					})
+			})
+			let person = await responce.json();
+            let string = "<tr><td class = 'id'>"+ person.id+"<td class = 'name'>" + person.name + "</td><td> " + person.s_name + "</td><td>" + bt_del + "</td>";
+			document.getElementById("info").innerHTML += string;
+            document.getElementById("i").id = i;
+		}
+		async function del() {
+			console.log(document.getElementById()[i].parentElement.parentElement.children[0])
+		}
+	</script>
+</body>
+</html>
+	
