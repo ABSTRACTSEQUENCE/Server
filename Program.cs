@@ -1,31 +1,48 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 List<Person> personlist = new List<Person>();
+
 app.Run(async (context) =>
 {
+	async void AddPerson()
+	{
+		Person dude = await context.Request.ReadFromJsonAsync<Person>();
+		foreach (Person person in personlist)
+			if (dude.id == person.id) dude.id++;
+		personlist.Add(dude);
+		await context.Response.WriteAsJsonAsync(dude);
+	}
+	async void DelPerson()
+	{
+		Person dude = await context.Request.ReadFromJsonAsync<Person>();
+		for(int i=0; i < personlist.Count;i++)
+			if (personlist[i].id == dude.id) personlist.Remove(personlist[i]);
+	}
 app.Logger.LogInformation($"Path: { context.Request.Path }");
 	//if (context.Request.Path == "/favicon.ico") context.Response.StatusCode = 404;
 	switch(context.Request.Path)
 	{
-		case "/api/add":
-			//context.Request.ContentType = "application/json";
-			Person dude = await context.Request.ReadFromJsonAsync<Person>();
-			foreach (Person person in personlist)
-				if (dude.id == person.id) dude.id++;
-			personlist.Add(dude);
-			await context.Response.WriteAsJsonAsync(dude);
+		case "/api":
+			switch(context.Request.Method)
+			{
+				case"POST":
+					AddPerson();
+					break;
+				case "DEL":
+					DelPerson();
+					break;
+			}
 			break;
 		default:
 			context.Response.ContentType = "text/html";
 			await context.Response.SendFileAsync("index.html");
-			//Person johnn = new Person("12333","1");
-			//await context.Response.WriteAsJsonAsync(johnn);
 			break;
 
 	}
 
 });
 app.Run();
+
 public class Person
 {
 	public int id { get; set; }
