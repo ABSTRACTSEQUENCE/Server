@@ -32,27 +32,27 @@
 		let bt_del = "<button id=i onclick='del(this)'>Удалить</button>"
 		let headers = { "Accept": "application/json", "Content-Type": "application/json" }
 		document.getElementById("submit").addEventListener("click", add)
+		
 
-		async function request(m, person?){//Если метод GET то вернёт список всех челов
-			return await fetch("/api", {
-				method: m,
-				headers: headers,
-				body: JSON.stringify(person)
-			})
-		}
-
-
+		///////////////////////////////////////////////////////////////////////////////
 
 		async function add() {
-			let Person = await (await request("POST", {
-				name: document.getElementById("name").value,
-				s_name: document.getElementById("s_name").value
-		})).json()
+			let responce = await fetch("/api", {
+				method: "POST",
+				headers: headers,
+				body: JSON.stringify({
+					name: document.getElementById("name").value,
+                    s_name: document.getElementById("s_name").value
+					})
+			})
+			let Person = await responce.json();
 
-            let string = "<tr><td class = 'id'>"+ Person.id+"<td class = 'name'>" + Person.name + "</td><td> " + Person.s_name + "</td><td>" + bt_del + "</td>";
+			let string = "<tr><td class = 'id'>" + Person.id + "<td class = 'name'>" + Person.name + "</td><td> " + Person.s_name + "</td><td>" + bt_del + "</td>";
+
 			document.getElementById("info").innerHTML += string;
             document.getElementById("i").id = i;
 		}
+
 		async function del() {
 			request("DEL")
 			i.parentElement.parentElement.children[0]
