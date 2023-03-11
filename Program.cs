@@ -1,25 +1,36 @@
+using System.Text.Json;
+List<Person> personlist = new();
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
-List<Person> personlist = new List<Person>();
-
 app.Run(async (context) =>
 {
 	async void AddPerson()
 	{
+		try 
+		{
+			personlist = JsonSerializer.Deserialize<List<Person>>(File.ReadAllText("Users.json"));
+		}
+		catch (Exception){}
+		File.WriteAllText("Users.json", "");
 		Person dude = await context.Request.ReadFromJsonAsync<Person>();
-		foreach (Person person in personlist)
-			if (dude.id == person.id) dude.id++;
+		foreach (Person i in personlist) { if (dude.id == i.id) dude.id++; }
 		personlist.Add(dude);
+		File.AppendAllText("Users.json", JsonSerializer.Serialize(personlist)+"\n");
 		await context.Response.WriteAsJsonAsync(dude);
 	}
 	async void DelPerson()
 	{
 		Person dude = await context.Request.ReadFromJsonAsync<Person>();
-		for(int i=0; i < personlist.Count;i++)
-			if (personlist[i].id == dude.id) personlist.Remove(personlist[i]);
+		personlist = JsonSerializer.Deserialize<List<Person>>(File.ReadAllText("Users.json"));
+		File.WriteAllText("Users.json", "");
+		personlist.Remove(dude);
+		File.AppendAllText("Users.json", JsonSerializer.Serialize(personlist) + "\n");
+	}
+	async void GetPersonList()
+	{
+		await context.Response.WriteAsJsonAsync(File.ReadAllText("/Users.json"));
 	}
 app.Logger.LogInformation($"Path: { context.Request.Path }");
-	//if (context.Request.Path == "/favicon.ico") context.Response.StatusCode = 404;
 	switch(context.Request.Path)
 	{
 		case "/api":
@@ -31,6 +42,9 @@ app.Logger.LogInformation($"Path: { context.Request.Path }");
 				case "DEL":
 					DelPerson();
 					break;
+				case "GET":
+					GetPersonList();
+					break;
 			}
 			break;
 		default:
@@ -39,7 +53,6 @@ app.Logger.LogInformation($"Path: { context.Request.Path }");
 			break;
 
 	}
-
 });
 app.Run();
 
@@ -50,6 +63,7 @@ public class Person
 	public string s_name { get; set; }
 
 	public Person(string name, string s_name) { this.name = name; this.s_name = s_name; }
+	public Person () { }
 	public override string ToString()
 	{
 		return $"Name: {name} Second Name:{s_name}";

@@ -29,7 +29,7 @@
 
 	<!--</form>-->
 	<script>
-		let bt_del = "<button id=i onclick='del(this)'>Удалить</button>"
+		let bt_del = "<button class='bt_del'>Удалить</button>"
 		let headers = { "Accept": "application/json", "Content-Type": "application/json" }
 		document.getElementById("submit").addEventListener("click", add)
 		
@@ -50,12 +50,22 @@
 			let string = "<tr><td class = 'id'>" + Person.id + "<td class = 'name'>" + Person.name + "</td><td> " + Person.s_name + "</td><td>" + bt_del + "</td>";
 
 			document.getElementById("info").innerHTML += string;
-            document.getElementById("i").id = i;
+			//document.getElementById("i").addEventListener("click", del(this.id))
+			document.getElementsByClassName("bt_del")[document.getElementsByClassName.length-1].addEventListener("click", del(Person))
+			//document.getElementById("i").id = Person.id;
 		}
 
-		async function del() {
-			request("DEL")
-			i.parentElement.parentElement.children[0]
+        async function getAll() {
+			let r = await fetch("/api")
+			return r.json()
+        }
+
+		async function del(dude) {
+			await fetch("/api", {
+				method: "DEL",
+				headers: headers,
+				body: JSON.stringify(dude)
+			})
 		}
 	</script>
 </body>
