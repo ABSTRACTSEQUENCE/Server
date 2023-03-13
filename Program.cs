@@ -23,7 +23,7 @@ app.Run(async (context) =>
 		Person dude = await context.Request.ReadFromJsonAsync<Person>();
 		personlist = JsonSerializer.Deserialize<List<Person>>(File.ReadAllText("Users.json"));
 		File.WriteAllText("Users.json", "");
-		personlist.Remove(dude);
+		for (int i = 0; i < personlist.Count; i++) if (personlist[i].id == dude.id) personlist.Remove(personlist[i]);
 		File.AppendAllText("Users.json", JsonSerializer.Serialize(personlist) + "\n");
 	}
 	async void GetPersonList()

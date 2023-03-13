@@ -13,28 +13,31 @@
 			border-width: 1px;
 		}
 	</style>
-	<!--<form method="post" action="users">-->
 	<div>
 		Имя: <input id="name" name="name" />
 		Фамилия: <input id="s_name" name="name" />
 		<button id="submit">Добавить чела</button>
 	</div>
 	<div>
-		<table id="info" border="1">
-			<th>ID</th>
-			<th>Имя</th>
-			<th>Фамилия</th>
+		<table border="1">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Имя</th>
+					<th>Фамилия</th>
+				</tr>
+			</thead>
+			<tbody id="info">
+			</tbody>
 		</table>
 	</div>
-
-	<!--</form>-->
 	<script>
-		let bt_del = "<button class='bt_del'>Удалить</button>"
 		let headers = { "Accept": "application/json", "Content-Type": "application/json" }
 		document.getElementById("submit").addEventListener("click", add)
-		
 
-		///////////////////////////////////////////////////////////////////////////////
+			//////////////////////////////////////////////////////////////////////////////
+		let personlist = [];
+
 
 		async function add() {
 			let responce = await fetch("/api", {
@@ -42,31 +45,44 @@
 				headers: headers,
 				body: JSON.stringify({
 					name: document.getElementById("name").value,
-                    s_name: document.getElementById("s_name").value
+					s_name: document.getElementById("s_name").value
 					})
 			})
-			let Person = await responce.json();
-
-			let string = "<tr><td class = 'id'>" + Person.id + "<td class = 'name'>" + Person.name + "</td><td> " + Person.s_name + "</td><td>" + bt_del + "</td>";
-
-			document.getElementById("info").innerHTML += string;
+			let Person = await responce.json()
+			personlist.push(Person);
+			document.getElementById("info").innerHTML +=
+				"<tr><td class = 'id'>" +
+				Person.id +
+				"<td>" +
+				Person.name +
+				"</td><td>" +
+				Person.s_name +
+				"</td><td class = 'del'>";
+            let bt_del = document.createElement("button"); bt_del.textContent = "Удалить"; //bt_del.addEventListener('click', ()=>del(personlist.at(-1)))
+			let btns = document.getElementsByClassName('del')
+			let ids = document.getElementsByClassName('id')
+            btns[btns.length - 1].appendChild(bt_del);
+            for (var i = 0; i < ids.length; i++) if (ids[i].innerHTML == Person.id) ids[i].parentElement.children[3].lastChild.addEventListener('click',()=>del(Person));
+			//let id = document.getElementsByClassName('id');
+			//for (let i = 0; i < id.length - 1; i++) personlist.forEach((p) => { if (id[i] == p.id) bt_del.onclick = () => del(p); console.log(bt_del + ' assigned onclick!') })
 			//document.getElementById("i").addEventListener("click", del(this.id))
-			document.getElementsByClassName("bt_del")[document.getElementsByClassName.length-1].addEventListener("click", del(Person))
-			//document.getElementById("i").id = Person.id;
+			//let bt_del = document.getElementsByClassName("bt_del");
+			//document.getElementsByClassName("bt_del")[document.getElementsByClassName("bt_del").length - 1].addEventListener('click', () => del(Person));
+            //bt_del[bt_del.length - 1].addEventListener('click', () => del(Person));
+            //console.log(document.getElementsByClassName("bt_del")[document.getElementsByClassName("bt_del").length - 1])=>
 		}
 
-        async function getAll() {
-			let r = await fetch("/api")
-			return r.json()
-        }
 
-		async function del(dude) {
-			await fetch("/api", {
-				method: "DEL",
-				headers: headers,
-				body: JSON.stringify(dude)
-			})
+        async function del(dude) {
+            await fetch("/api", {
+                method: "DEL",
+                headers: headers,
+                body: JSON.stringify(dude)
+            })
+            let ids = document.getElementsByClassName("id");
+            for (let i = 0; i < ids.length; i++) if (dude.id == ids[i].innerHTML) ids[i].parentElement.remove();
 		}
+
 	</script>
 </body>
 </html>
